@@ -1,0 +1,13 @@
+# 根目录忽略
+.workbuddy/
+_refs/
+*.jpg
+*.jpeg
+*.png
+*.exe
+.tunnel-url
+
+# 常见
+.DS_Store
+Thumbs.db
+*.log
