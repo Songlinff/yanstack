@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("USER")
+  isBlocked    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  orders       Order[]
+  reviews      Review[]
+}
+
+model EmailCode {
+  id        String    @id @default(cuid())
+  email     String
+  code      String
+  purpose   String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email, purpose])
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+}
+
+model Product {
+  id              String     @id @default(cuid())
+  title           String
+  slug            String     @unique
+  summary         String
+  description     String
+  coverUrl        String
+  priceCents      Int
+  originalCents   Int?
+  stock           Int        @default(-1)
+  soldCount       Int        @default(0)
+  year            Int?
+  subject         String?
+  schoolTags      String     @default("[]")
+  examType        String     @default("统考")
+  deliveryType    String     @default("NETDISK")
+  deliveryPayload String
+  previewPages    String     @default("[]")
+  isPublished     Boolean    @default(true)
+  isFeatured      Boolean    @default(false)
+  categoryId      String
+  category        Category   @relation(fields: [categoryId], references: [id])
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  orderItems      OrderItem[]
+  reviews         Review[]
+}
+
+model Coupon {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  description    String
+  discountType   String
+  discountValue  Int
+  minAmountCents Int       @default(0)
+  maxUses        Int       @default(100)
+  usedCount      Int       @default(0)
+  startsAt       DateTime  @default(now())
+  endsAt         DateTime?
+  isActive       Boolean   @default(true)
+  orders         Order[]
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  orderNo        String      @unique
+  userId         String?
+  user           User?       @relation(fields: [userId], references: [id])
+  guestEmail     String?
+  guestContact   String?
+  status         String      @default("PENDING")
+  subtotalCents  Int
+  discountCents  Int         @default(0)
+  totalCents     Int
+  couponId       String?
+  coupon         Coupon?     @relation(fields: [couponId], references: [id])
+  couponCode     String?
+  paymentChannel String      @default("MOCK")
+  paidAt         DateTime?
+  fulfilledAt    DateTime?
+  note           String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  items          OrderItem[]
+  payments       Payment[]
+}
+
+model OrderItem {
+  id               String  @id @default(cuid())
+  orderId          String
+  order            Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product @relation(fields: [productId], references: [id])
+  title            String
+  unitPriceCents   Int
+  quantity         Int     @default(1)
+  deliverySnapshot String?
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  channel     String
+  amountCents Int
+  status      String   @default("pending")
+  tradeNo     String?
+  rawNotify   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model SiteSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  category  String   @default("建议")
+  content   String
+  contact   String?
+  pageUrl   String?
+  userId    String?
+  userEmail String?
+  userName  String?
+  status    String   @default("NEW")
+  adminNote String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
