@@ -8,6 +8,7 @@ import { OnlineMonitor } from "./online-monitor";
 const NAV = [
   { href: "/admin", label: "仪表盘", exact: true },
   { href: "/admin/products", label: "商品资料" },
+  { href: "/admin/claims", label: "领取统计" },
   { href: "/admin/feedback", label: "用户反馈" },
   { href: "/admin/categories", label: "科目分类" },
   { href: "/admin/users", label: "用户" },

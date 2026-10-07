@@ -7,22 +7,12 @@ function threeLinks(slug: string) {
   return JSON.stringify({
     links: [
       {
-        name: "百度网盘",
-        url: `https://pan.baidu.com/s/demo-${slug}`,
-        code: "bd01",
-      },
-      {
-        name: "阿里云盘",
-        url: `https://www.alipan.com/s/demo-${slug}`,
-        code: "ali2",
-      },
-      {
         name: "夸克网盘",
         url: `https://pan.quark.cn/s/demo-${slug}`,
         code: "qk03",
       },
     ],
-    note: "三个网盘内容相同，任选一个领取即可。",
+    note: "请使用夸克 App 打开链接下载。",
   });
 }
 
@@ -78,7 +68,7 @@ async function main() {
       slug: "politics-core-2026",
       summary: "四门课框架图 + 高频考点速记，适合冲刺背诵。",
       description:
-        "覆盖马原/毛中特/史纲/思修核心框架，含近五年命题趋势标注与时政补充位。免费领取，三网盘任选。",
+        "覆盖马原/毛中特/史纲/思修核心框架，含近五年命题趋势标注与时政补充位。免费领取，夸克网盘下载。",
       coverUrl: "/covers/politics.svg",
       priceCents: 0,
       originalCents: null as number | null,
@@ -199,7 +189,7 @@ async function main() {
     site_tagline: "把真正有用的考研资料，交到你手里",
     support_wechat: "请填写客服微信号",
     support_email: "support@yanstack.local",
-    announcement: "全部资料免费领取：点击「立即领取」后可选择百度 / 阿里 / 夸克网盘下载。",
+    announcement: "全部资料免费领取：点击「立即领取」后通过夸克网盘下载。",
   };
 
   for (const [key, value] of Object.entries(settings)) {

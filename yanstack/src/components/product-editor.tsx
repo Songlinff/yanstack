@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { defaultThreeLinks, parseDelivery } from "@/lib/utils";
+import { defaultQuarkLink, onlyQuarkLinks, parseDelivery } from "@/lib/utils";
 
 type Category = { id: string; name: string };
 type Product = {
@@ -26,6 +26,21 @@ type Product = {
   isFeatured: boolean;
 };
 
+function pickQuarkFromPayload(payload: string) {
+  const parsed = parseDelivery(payload);
+  // parseDelivery 已过滤夸克；编辑时若旧数据无夸克名，再从原始 links 里找
+  try {
+    const raw = JSON.parse(payload);
+    if (Array.isArray(raw?.links)) {
+      const found = onlyQuarkLinks(raw.links);
+      if (found[0]) return found[0];
+    }
+  } catch {
+    /* ignore */
+  }
+  return parsed.links[0] || defaultQuarkLink();
+}
+
 export function ProductEditor({
   product,
   categories,
@@ -35,12 +50,9 @@ export function ProductEditor({
 }) {
   const router = useRouter();
   const [error, setError] = useState("");
-  const initialLinks = product
-    ? parseDelivery(product.deliveryPayload).links
-    : defaultThreeLinks();
-  while (initialLinks.length < 3) {
-    initialLinks.push({ name: `网盘${initialLinks.length + 1}`, url: "", code: "" });
-  }
+  const initial = product
+    ? pickQuarkFromPayload(product.deliveryPayload)
+    : defaultQuarkLink();
 
   const [form, setForm] = useState({
     title: product?.title || "",
@@ -56,16 +68,9 @@ export function ProductEditor({
     categoryId: product?.categoryId || categories[0]?.id || "",
     isPublished: product?.isPublished ?? true,
     isFeatured: product?.isFeatured ?? false,
-    link1Name: initialLinks[0]?.name || "百度网盘",
-    link1Url: initialLinks[0]?.url || "",
-    link1Code: initialLinks[0]?.code || "",
-    link2Name: initialLinks[1]?.name || "阿里云盘",
-    link2Url: initialLinks[1]?.url || "",
-    link2Code: initialLinks[1]?.code || "",
-    link3Name: initialLinks[2]?.name || "夸克网盘",
-    link3Url: initialLinks[2]?.url || "",
-    link3Code: initialLinks[2]?.code || "",
-    note: parseDelivery(product?.deliveryPayload || "{}").note || "三个网盘内容相同，任选一个。",
+    quarkUrl: initial.url || "",
+    quarkCode: initial.code || "",
+    note: parseDelivery(product?.deliveryPayload || "{}").note || "请使用夸克网盘 App 打开链接下载。",
   });
 
   return (
@@ -75,11 +80,7 @@ export function ProductEditor({
         e.preventDefault();
         setError("");
         const deliveryPayload = JSON.stringify({
-          links: [
-            { name: form.link1Name, url: form.link1Url, code: form.link1Code },
-            { name: form.link2Name, url: form.link2Url, code: form.link2Code },
-            { name: form.link3Name, url: form.link3Url, code: form.link3Code },
-          ],
+          links: [{ name: "夸克网盘", url: form.quarkUrl, code: form.quarkCode }],
           note: form.note,
         });
         const res = await fetch("/api/admin", {
@@ -176,30 +177,22 @@ export function ProductEditor({
       </label>
 
       <div className="rounded-2xl border border-line p-4">
-        <div className="mb-3 font-semibold">三个网盘领取链接</div>
-        {[1, 2, 3].map((n) => (
-          <div key={n} className="mb-3 grid gap-2 sm:grid-cols-3">
-            <input
-              className="rounded-xl border border-line px-3 py-2 text-sm"
-              placeholder={`网盘${n}名称`}
-              value={String(form[`link${n}Name` as keyof typeof form])}
-              onChange={(e) => setForm({ ...form, [`link${n}Name`]: e.target.value })}
-            />
-            <input
-              className="rounded-xl border border-line px-3 py-2 text-sm sm:col-span-2"
-              placeholder="下载链接 URL"
-              value={String(form[`link${n}Url` as keyof typeof form])}
-              onChange={(e) => setForm({ ...form, [`link${n}Url`]: e.target.value })}
-            />
-            <input
-              className="rounded-xl border border-line px-3 py-2 text-sm sm:col-span-3"
-              placeholder="提取码（可空）"
-              value={String(form[`link${n}Code` as keyof typeof form])}
-              onChange={(e) => setForm({ ...form, [`link${n}Code`]: e.target.value })}
-            />
-          </div>
-        ))}
-        <label className="block text-sm">
+        <div className="mb-3 font-semibold">夸克网盘领取链接</div>
+        <div className="grid gap-2">
+          <input
+            className="rounded-xl border border-line px-3 py-2 text-sm"
+            placeholder="夸克分享链接 URL"
+            value={form.quarkUrl}
+            onChange={(e) => setForm({ ...form, quarkUrl: e.target.value })}
+          />
+          <input
+            className="rounded-xl border border-line px-3 py-2 text-sm"
+            placeholder="提取码（可空）"
+            value={form.quarkCode}
+            onChange={(e) => setForm({ ...form, quarkCode: e.target.value })}
+          />
+        </div>
+        <label className="mt-3 block text-sm">
           领取备注
           <input
             className="mt-1 w-full rounded-xl border border-line px-3 py-2"

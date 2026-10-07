@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { parseSchoolTags } from "@/lib/utils";
+import { ProductCover } from "@/components/product-cover";
 
 type ProductCardProps = {
   product: {
@@ -12,7 +13,8 @@ type ProductCardProps = {
     subject: string | null;
     year: number | null;
     schoolTags: string;
-    soldCount: number;
+    soldCount?: number;
+    category?: { name?: string; slug?: string } | null;
   };
 };
 
@@ -24,10 +26,12 @@ export function ProductCard({ product }: ProductCardProps) {
       className="group surface block overflow-hidden rounded-2xl transition duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow)]"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-paper-deep">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={product.coverUrl}
-          alt={product.title}
+        <ProductCover
+          title={product.title}
+          subject={product.subject}
+          year={product.year}
+          categorySlug={product.category?.slug}
+          categoryName={product.category?.name}
           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
         />
         <div className="absolute left-3 top-3 rounded-full bg-ink/80 px-2.5 py-1 text-xs text-white">
@@ -52,7 +56,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
         <div className="flex items-end justify-between pt-1">
           <span className="text-lg font-bold text-accent">免费领取</span>
-          <span className="text-xs text-ink-soft">已领 {product.soldCount}</span>
+          <span className="text-xs text-ink-soft">已领 99+</span>
         </div>
       </div>
     </Link>

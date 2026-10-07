@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/product-card";
+import { ExamCountdown } from "@/components/exam-countdown";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,7 @@ export default async function HomePage() {
       where: { isPublished: true, isFeatured: true },
       orderBy: { soldCount: "desc" },
       take: 6,
+      include: { category: true },
     }),
     prisma.category.findMany({ orderBy: { sortOrder: "asc" } }),
     prisma.siteSetting.findUnique({ where: { key: "announcement" } }),
@@ -17,6 +19,8 @@ export default async function HomePage() {
 
   return (
     <div>
+      <ExamCountdown />
+
       <section className="relative overflow-hidden border-b border-line/70">
         <div className="absolute inset-0 grid-noise opacity-70" />
         <div className="absolute -right-20 top-10 h-72 w-72 rounded-full bg-accent/20 blur-3xl anim-float" />
@@ -26,7 +30,7 @@ export default async function HomePage() {
             <p className="mb-3 text-sm font-semibold tracking-[0.2em] text-accent">YANSTACK</p>
             <h1 className="brand-display text-5xl leading-tight text-ink md:text-6xl">研栈</h1>
             <p className="mt-4 max-w-xl text-lg text-ink-soft">
-              把真正有用的考研资料，交到你手里。真题精析、冲刺笔记、院校信息，免费领取，三网盘任选下载。
+              把真正有用的考研资料，交到你手里。真题精析、冲刺笔记、院校信息，免费领取，夸克网盘下载。
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/products" className="btn btn-primary">
@@ -45,7 +49,7 @@ export default async function HomePage() {
               }}
             />
             <div className="relative flex h-full flex-col justify-end p-8">
-              <div className="text-sm text-white/70">免费领取 · 科目齐全 · 三网盘下载</div>
+              <div className="text-sm text-white/70">免费领取 · 科目齐全 · 夸克下载</div>
               <div className="mt-2 brand-display text-3xl">凌晨的书桌，也值得被照亮</div>
             </div>
           </div>
@@ -103,8 +107,8 @@ export default async function HomePage() {
           <div className="mt-6 grid gap-4 md:grid-cols-3">
             {[
               { t: "选资料", d: "按科目、年份筛选，进入详情页。" },
-              { t: "立即领取", d: "点击按钮后弹出三个网盘选项。" },
-              { t: "任选下载", d: "百度 / 阿里 / 夸克任选一个打开即可。" },
+              { t: "立即领取", d: "点击按钮后弹出夸克网盘下载入口。" },
+              { t: "打开下载", d: "用夸克 App 打开链接即可保存资料。" },
             ].map((x) => (
               <div key={x.t} className="surface rounded-2xl p-5">
                 <div className="font-semibold text-ink">{x.t}</div>

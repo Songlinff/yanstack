@@ -25,7 +25,7 @@ export default async function AdminDashboardPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="brand-display text-3xl">运营仪表盘</h1>
-          <p className="mt-1 text-sm text-ink-soft">免费领取模式：管理资料与三网盘链接</p>
+          <p className="mt-1 text-sm text-ink-soft">免费领取模式：管理资料与夸克网盘链接</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {newFeedback > 0 && (
@@ -48,7 +48,7 @@ export default async function AdminDashboardPage() {
         {[
           { label: "资料总数", value: productCount },
           { label: "已上架", value: published },
-          { label: "累计领取", value: claimTotal._sum.soldCount || 0 },
+          { label: "累计领取", value: claimTotal._sum.soldCount || 0, href: "/admin/claims" },
           { label: "注册用户", value: userCount },
           { label: "未读反馈", value: newFeedback, href: "/admin/feedback", warm: true },
         ].map((s) => (

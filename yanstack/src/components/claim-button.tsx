@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { NetdiskLink } from "@/lib/utils";
+import { onlyQuarkLinks } from "@/lib/utils";
 import { CopyButton } from "./copy-button";
 import { useToast } from "./toast";
 
@@ -18,7 +19,7 @@ export function ClaimButton({ productId, title, links, note, stock, compact }: P
   const [open, setOpen] = useState(false);
   const { push } = useToast();
   const soldOut = stock === 0;
-  const options = links.slice(0, 3);
+  const options = onlyQuarkLinks(links).slice(0, 1);
 
   async function onClaim() {
     if (soldOut) return;
@@ -32,7 +33,7 @@ export function ClaimButton({ productId, title, links, note, stock, compact }: P
       /* 领取展示不阻断 */
     }
     setOpen(true);
-    push("请选择网盘领取", "ok");
+    push(options[0] ? "已为你打开夸克领取" : "暂无夸克链接", options[0] ? "ok" : "err");
   }
 
   if (soldOut) {
@@ -54,7 +55,7 @@ export function ClaimButton({ productId, title, links, note, stock, compact }: P
           className="fixed inset-0 z-50 flex items-end justify-center bg-ink/50 p-4 sm:items-center"
           role="dialog"
           aria-modal="true"
-          aria-label="选择网盘领取"
+          aria-label="夸克网盘领取"
           onClick={() => setOpen(false)}
         >
           <div
@@ -63,7 +64,7 @@ export function ClaimButton({ productId, title, links, note, stock, compact }: P
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="brand-display text-2xl text-ink">选择网盘领取</h2>
+                <h2 className="brand-display text-2xl text-ink">夸克网盘领取</h2>
                 <p className="mt-1 line-clamp-2 text-sm text-ink-soft">{title}</p>
               </div>
               <button
@@ -77,7 +78,7 @@ export function ClaimButton({ productId, title, links, note, stock, compact }: P
 
             <div className="mt-5 space-y-3">
               {options.length === 0 && (
-                <p className="text-sm text-ink-soft">暂未配置网盘链接，请联系管理员。</p>
+                <p className="text-sm text-ink-soft">暂未配置夸克链接，请联系管理员。</p>
               )}
               {options.map((link, idx) => (
                 <div
@@ -85,9 +86,7 @@ export function ClaimButton({ productId, title, links, note, stock, compact }: P
                   className="rounded-2xl border border-line bg-paper/80 p-4"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="font-semibold text-ink">
-                      {idx + 1}. {link.name}
-                    </div>
+                    <div className="font-semibold text-ink">{link.name || "夸克网盘"}</div>
                     <a
                       href={link.url}
                       target="_blank"
@@ -109,7 +108,7 @@ export function ClaimButton({ productId, title, links, note, stock, compact }: P
             </div>
 
             {note && <p className="mt-4 text-xs text-ink-soft">{note}</p>}
-            <p className="mt-3 text-xs text-ink-soft">任选一个网盘即可，三个渠道内容相同。</p>
+            <p className="mt-3 text-xs text-ink-soft">本站仅提供夸克网盘下载。</p>
           </div>
         </div>
       )}

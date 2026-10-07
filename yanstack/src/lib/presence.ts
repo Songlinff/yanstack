@@ -6,6 +6,8 @@ type PresenceRecord = {
   lastSeenAt: number;
   path: string;
   isAdmin: boolean;
+  /** 用于去重：同一登录用户 / 同一 IP 的后台只保留一条 */
+  dedupeKey?: string;
 };
 
 const visitors = new Map<string, PresenceRecord>();
@@ -16,20 +18,36 @@ function prune(now = Date.now()) {
   }
 }
 
+function dropByDedupeKey(dedupeKey: string | undefined, keepId: string) {
+  if (!dedupeKey) return;
+  for (const [id, rec] of visitors) {
+    if (id !== keepId && rec.dedupeKey === dedupeKey) {
+      visitors.delete(id);
+    }
+  }
+}
+
 export function touchPresence(input: {
   visitorId: string;
   path?: string;
   isAdmin?: boolean;
+  /** 稳定去重键，例如 admin:userId / ip:1.2.3.4 */
+  dedupeKey?: string;
 }) {
-  const id = input.visitorId.trim().slice(0, 64);
+  const id = input.visitorId.trim().slice(0, 80);
   if (!id) return getPresenceSnapshot();
 
   const now = Date.now();
   prune(now);
+
+  const dedupeKey = input.dedupeKey?.trim().slice(0, 120) || undefined;
+  dropByDedupeKey(dedupeKey, id);
+
   visitors.set(id, {
     lastSeenAt: now,
     path: (input.path || "/").slice(0, 200),
     isAdmin: Boolean(input.isAdmin),
+    dedupeKey,
   });
   return getPresenceSnapshot(now);
 }

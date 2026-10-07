@@ -69,6 +69,20 @@ model Product {
   updatedAt       DateTime   @updatedAt
   orderItems      OrderItem[]
   reviews         Review[]
+  claimEvents     ClaimEvent[]
+}
+
+// 真实领取流水（前台展示固定「已领 99+」，后台看此表）
+model ClaimEvent {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([productId, createdAt])
+  @@index([createdAt])
 }
 
 model Coupon {

@@ -64,7 +64,7 @@ export function OnlineMonitor({ compact = false }: { compact?: boolean }) {
         <div>
           <h2 className="font-semibold">网站监控</h2>
           <p className="mt-1 text-xs text-ink-soft">
-            在线：约 60 秒内心跳；访问次数：前台每次打开/切换页面 +1（后台不计）。每 8 秒刷新。
+            在线：约 60 秒内心跳；同一登录账号只计 1 人。访问次数：前台打开/切换页面 +1（后台不计）。每 8 秒刷新。
           </p>
         </div>
         <div className="flex items-center gap-2 text-sm text-emerald-700">
@@ -123,9 +123,11 @@ export function OnlineMonitor({ compact = false }: { compact?: boolean }) {
 /** 前台页脚用的访问次数展示 */
 export function FrontVisitStat() {
   const [pv, setPv] = useState<number | null>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let stopped = false;
+    setReady(true);
     fetch("/api/presence", { cache: "no-store" })
       .then((r) => r.json())
       .then((j: { frontPv?: number }) => {
@@ -137,9 +139,9 @@ export function FrontVisitStat() {
     };
   }, []);
 
-  if (pv === null) return null;
+  if (!ready || pv === null) return null;
   return (
-    <span>
+    <span suppressHydrationWarning>
       累计访问 {pv.toLocaleString("zh-CN")} 次
     </span>
   );

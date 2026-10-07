@@ -45,10 +45,25 @@ export async function createSession(user: SessionUser) {
   jar.set(COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    // 纯 HTTP 站点（无 HTTPS）必须为 false，否则浏览器不保存 Secure cookie
+    secure: cookieSecure(),
     path: "/",
     maxAge: 60 * 60 * 24 * 14,
   });
+}
+
+/** COOKIE_SECURE=0|false 强制关；=1|true 强制开；否则按 APP_URL / NODE_ENV 推断 */
+function cookieSecure() {
+  const flag = (process.env.COOKIE_SECURE || "").trim().toLowerCase();
+  if (flag === "0" || flag === "false") return false;
+  if (flag === "1" || flag === "true") return true;
+  const url =
+    process.env.APP_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "";
+  if (url.startsWith("http://")) return false;
+  return process.env.NODE_ENV === "production";
 }
 
 export async function destroySession() {

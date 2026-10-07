@@ -11,3 +11,10 @@ _refs/
 .DS_Store
 Thumbs.db
 *.log
+
+# 本地部署包
+yanstack-deploy.zip
+yanstack-resync.zip
+yanstack-resync.tar.gz
+*.zip
+*.tar.gz

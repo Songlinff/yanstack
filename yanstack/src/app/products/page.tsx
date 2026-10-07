@@ -39,7 +39,7 @@ export default async function ProductsPage({ searchParams }: Props) {
           : [{ isFeatured: "desc" as const }, { soldCount: "desc" as const }];
 
   const [products, categories] = await Promise.all([
-    prisma.product.findMany({ where, orderBy }),
+    prisma.product.findMany({ where, orderBy, include: { category: true } }),
     prisma.category.findMany({ orderBy: { sortOrder: "asc" } }),
   ]);
 
@@ -57,7 +57,7 @@ export default async function ProductsPage({ searchParams }: Props) {
     <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="mb-8">
         <h1 className="brand-display text-4xl text-ink">资料库</h1>
-        <p className="mt-2 text-ink-soft">免费领取，三网盘任选下载。</p>
+        <p className="mt-2 text-ink-soft">免费领取，夸克网盘下载。</p>
       </div>
 
       <form method="get" className="surface mb-4 grid gap-3 rounded-2xl p-4 md:grid-cols-[1fr_auto_auto_auto_auto]">

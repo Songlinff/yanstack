@@ -27,7 +27,7 @@ export default async function AdminProductsPage({ searchParams }: Props) {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="brand-display text-3xl">商品资料</h1>
-        <p className="mt-1 text-sm text-ink-soft">考研资料免费领取，配置三个网盘链接</p>
+        <p className="mt-1 text-sm text-ink-soft">考研资料免费领取，配置夸克网盘链接</p>
         </div>
         <Link href="/admin/products/new" className="btn btn-primary text-sm">
           上架新资料

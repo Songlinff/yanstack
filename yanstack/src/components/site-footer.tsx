@@ -46,12 +46,12 @@ export function SiteFooter({ showSponsor = true }: { showSponsor?: boolean }) {
           </div>
           <div className="text-sm text-white/75">
             <div className="mb-2 font-semibold text-white">说明</div>
-            <p>资料免费领取，点击后可选择百度 / 阿里 / 夸克网盘下载。内容以商品页为准。</p>
+            <p>资料免费领取，点击后通过夸克网盘下载。内容以商品页为准。</p>
             <p className="mt-2">有问题点右下角橙色「意见反馈」，我们会尽快处理。</p>
           </div>
         </div>
         <div className="border-t border-white/10 py-4 text-center text-xs text-white/50">
-          © {new Date().getFullYear()} {site} · 考研资料平台
+          <span suppressHydrationWarning>© {new Date().getFullYear()}</span> {site} · 考研资料平台
           <span className="mx-2 text-white/25">·</span>
           <FrontVisitStat />
         </div>

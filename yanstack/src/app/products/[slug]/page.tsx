@@ -2,9 +2,12 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { parseDelivery, parseJsonArray, parseSchoolTags } from "@/lib/utils";
+import { buildProductDetailContent } from "@/lib/product-detail";
 import { ClaimButton } from "@/components/claim-button";
 import { ProductCard } from "@/components/product-card";
+import { ProductCover } from "@/components/product-cover";
 import { MobileBuyBar } from "@/components/mobile-buy-bar";
+import { ProductDetailPanel } from "@/components/product-detail-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -40,11 +43,24 @@ export default async function ProductDetailPage({ params }: Props) {
       id: { not: product.id },
     },
     take: 3,
+    include: { category: true },
   });
 
   const tags = parseSchoolTags(product.schoolTags);
   const previews = parseJsonArray(product.previewPages);
   const delivery = parseDelivery(product.deliveryPayload);
+  const detail = buildProductDetailContent({
+    title: product.title,
+    slug: product.slug,
+    summary: product.summary,
+    description: product.description,
+    subject: product.subject,
+    year: product.year,
+    examType: product.examType,
+    categoryName: product.category.name,
+    categorySlug: product.category.slug,
+    previewPages: previews,
+  });
   const stockLabel =
     product.stock < 0 ? "可领取" : product.stock === 0 ? "已领完" : `剩余 ${product.stock} 份`;
 
@@ -52,8 +68,14 @@ export default async function ProductDetailPage({ params }: Props) {
     <div className="mx-auto max-w-6xl px-4 py-10 pb-28 md:pb-10">
       <div className="grid gap-8 md:grid-cols-2">
         <div className="surface overflow-hidden rounded-3xl">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={product.coverUrl} alt={product.title} className="aspect-[4/3] w-full object-cover" />
+          <ProductCover
+            title={product.title}
+            subject={product.subject}
+            year={product.year}
+            categorySlug={product.category.slug}
+            categoryName={product.category.name}
+            className="aspect-[4/3] w-full object-cover"
+          />
         </div>
         <div>
           <div className="text-sm text-accent">
@@ -73,7 +95,7 @@ export default async function ProductDetailPage({ params }: Props) {
           </div>
           <div className="mt-6 flex items-end gap-3">
             <span className="text-3xl font-bold text-accent">免费</span>
-            <span className="pb-1 text-sm text-ink-soft">已领 {product.soldCount}</span>
+            <span className="pb-1 text-sm text-ink-soft">已领 99+</span>
           </div>
           <div className="mt-6 hidden md:block">
             <ClaimButton
@@ -86,27 +108,36 @@ export default async function ProductDetailPage({ params }: Props) {
           </div>
           <div className="mt-6 rounded-2xl border border-line bg-white/70 p-4 text-sm text-ink-soft">
             <div className="font-semibold text-ink">领取说明</div>
-            <p className="mt-1">点击「立即领取」后，可任选百度网盘 / 阿里云盘 / 夸克网盘其中一个渠道下载。</p>
+            <p className="mt-1">点击「立即领取」后，通过夸克网盘打开链接下载。</p>
           </div>
         </div>
       </div>
 
-      <section className="mt-10 grid gap-6 md:grid-cols-[1.4fr_0.6fr]">
-        <article className="surface rounded-3xl p-6">
-          <h2 className="brand-display text-2xl">详情</h2>
-          <p className="mt-4 whitespace-pre-wrap leading-7 text-ink-soft">{product.description}</p>
-        </article>
+      <section className="mt-10 grid gap-6 md:grid-cols-2">
+        <ProductDetailPanel content={detail} />
         <aside className="surface rounded-3xl p-6">
-          <h3 className="font-semibold">试读 / 目录</h3>
-          <ul className="mt-3 space-y-2 text-sm text-ink-soft">
+          <h3 className="font-semibold">资料目录</h3>
+          <p className="mt-1 text-xs text-ink-soft">
+            来自夸克分享预览（顶层文件夹 + 其下一级；过长会标注剩余项数）
+          </p>
+          <ul className="mt-3 max-h-[32rem] space-y-1 overflow-auto text-sm text-ink-soft">
             {previews.length ? (
-              previews.map((p) => (
-                <li key={p} className="rounded-lg bg-paper-deep px-3 py-2">
-                  {p}
-                </li>
-              ))
+              previews.map((p, i) => {
+                const nested = p.startsWith("　") || p.startsWith("  ");
+                const text = p.replace(/^[　\s]+/, "");
+                return (
+                  <li
+                    key={`${i}-${p}`}
+                    className={`rounded-lg bg-paper-deep/80 py-1.5 font-mono text-[12px] leading-relaxed tracking-tight ${
+                      nested ? "ml-3 px-3 text-ink-soft/90" : "px-3"
+                    }`}
+                  >
+                    {text}
+                  </li>
+                );
+              })
             ) : (
-              <li>暂无预览</li>
+              <li className="rounded-lg bg-paper-deep px-3 py-2">暂无目录，请稍后再看或直接领取下载</li>
             )}
           </ul>
         </aside>
